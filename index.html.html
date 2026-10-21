@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="문장 성분, 홑문장과 겹문장, 안은문장, 어미를 연습하는 국어 문법 퀴즈">
+<title>국어 문법 마스터</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#667085;--line:#dce3ed;--accent:#3157d5;--accent-soft:#edf1ff;--good:#157347;--bad:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;line-height:1.55}
+.wrap{max-width:780px;margin:0 auto;padding:22px 14px 48px}.hero{padding:22px 20px;background:linear-gradient(135deg,#1d347d,#486de1);color:#fff;border-radius:22px;margin-bottom:16px}.hero h1{margin:0 0 6px;font-size:clamp(25px,6vw,34px)}.hero p{margin:0;color:#e5eaff}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 4px 18px #24345a0a}.muted{color:var(--muted);font-size:.92rem}.topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}.topic{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px;text-align:left;font:inherit;cursor:pointer}.topic.active{border:2px solid var(--accent);background:var(--accent-soft);padding:11px}.topic strong{display:block}.topic small{display:block;color:var(--muted);margin-top:3px}.btn{border:0;border-radius:12px;padding:12px 16px;background:var(--accent);color:white;font:inherit;font-weight:700;cursor:pointer}.btn:disabled{opacity:.45;cursor:not-allowed}.btn.secondary{background:#edf0f5;color:var(--ink)}.btnrow{display:flex;gap:9px;flex-wrap:wrap}.btnrow .btn{flex:1}.progress{height:7px;background:#e8edf5;border-radius:9px;overflow:hidden;margin:12px 0}.bar{height:100%;background:var(--accent);width:0;transition:width .2s}.pill{display:inline-block;padding:4px 9px;border-radius:99px;background:var(--accent-soft);color:var(--accent);font-size:.84rem;font-weight:700}.question{font-size:1.18rem;font-weight:750;margin:15px 0}.target{font-size:1.03rem;background:#f2f5fb;border-radius:10px;padding:10px 12px}.options{display:grid;gap:9px;margin:14px 0}.option{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;background:white}.option input{margin-top:5px;accent-color:var(--accent)}.option.chosen{border-color:var(--accent);background:var(--accent-soft)}.option.correct{border-color:var(--good);background:#effaf3}.option.wrong{border-color:var(--bad);background:#fff1f0}.feedback{padding:13px;border-radius:12px;background:#f3f5f9;margin:12px 0}.feedback.good{color:var(--good);background:#effaf3}.feedback.bad{color:var(--bad);background:#fff1f0}.hidden{display:none!important}.result-score{font-size:2rem;font-weight:850}.resultrow{padding:12px 0;border-bottom:1px solid var(--line)}footer{color:var(--muted);font-size:.82rem;text-align:center;margin-top:22px}
+@media(max-width:480px){.topics{grid-template-columns:1fr}.panel{padding:15px}.hero{padding:19px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header class="hero"><h1>📘 국어 문법 마스터</h1><p>문장 성분부터 안은문장과 어미까지, 퀴즈로 연습해 보자!</p></header>
+
+<section id="setup" class="panel">
+<h2>연습할 단원 고르기</h2>
+<p class="muted">원하는 단원을 선택한 뒤 퀴즈를 시작해. 전체를 선택하면 모든 유형이 나와.</p>
+<div class="topics" id="topics"></div>
+<div class="btnrow"><button class="btn" id="start">퀴즈 시작하기</button></div>
+</section>
+
+<section id="quiz" class="panel hidden" aria-live="polite">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:center"><span class="pill" id="category"></span><span class="muted" id="counter"></span></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="question" id="question"></div>
+<div class="target" id="target"></div>
+<div class="options" id="options"></div>
+<div id="feedback" class="feedback hidden"></div>
+<div class="btnrow"><button class="btn" id="check">정답 확인</button><button class="btn hidden" id="next">다음 문제 →</button></div>
+<button class="btn secondary" id="back" style="width:100%;margin-top:9px">단원 선택으로 돌아가기</button>
+</section>
+
+<section id="result" class="panel hidden">
+<h2>🎉 퀴즈 완료!</h2><div class="result-score" id="score"></div><p id="summary"></p>
+<div class="btnrow"><button class="btn" id="retry">틀린 문제 다시 풀기</button><button class="btn secondary" id="home">다른 단원 선택</button></div>
+<div id="review" style="margin-top:18px"></div>
+</section>
+<footer>학습용 연습 문제입니다. 학교 수업과 교과서의 문법 설명을 함께 확인하세요.</footer>
+</main>
+<script>
+const questions = [
+{topic:"문장 성분",q:"나는 예쁜 꽃을 샀다. 에서 '예쁜'의 문장 성분은?",target:"예쁜",opts:["목적어","관형어","부사어","보어"],a:1,why:"'예쁜'은 뒤의 체언 '꽃'을 꾸며 주므로 관형어야."},
+{topic:"문장 성분",q:"동생은 의사가 되었다. 에서 '의사가'는?",target:"의사가",opts:["목적어","관형어","보어","부사어"],a:2,why:"'되다' 앞에서 주어의 의미를 보충하므로 보어야."},
+{topic:"문장 성분",q:"강아지가 빠르게 달린다. 에서 '빠르게'는?",target:"빠르게",opts:["목적어","관형어","부사어","보어"],a:2,why:"달리는 모습을 꾸며 주므로 부사어야."},
+{topic:"문장 성분",q:"나는 사과를 먹었다. 에서 '사과를'은?",target:"사과를",opts:["목적어","관형어","부사어","보어"],a:0,why:"무엇을 먹었는지 나타내는 목적어야."},
+{topic:"홑문장·겹문장",q:"'새가 하늘을 난다.'는 어떤 문장일까?",target:"문장 전체",opts:["홑문장","겹문장","대등하게 이어진 문장","종속적으로 이어진 문장"],a:0,why:"주어와 서술어의 관계가 한 번 나타나는 홑문장이야."},
+{topic:"홑문장·겹문장",q:"'비가 오고 바람이 분다.'는?",target:"문장 전체",opts:["홑문장","명사절을 안은 문장","대등하게 이어진 문장","관형절을 안은 문장"],a:2,why:"두 문장이 '-고'로 나란히 연결된 대등하게 이어진 문장이야."},
+{topic:"홑문장·겹문장",q:"'봄이 오면 꽃이 핀다.'는?",target:"문장 전체",opts:["홑문장","종속적으로 이어진 문장","대등하게 이어진 문장","서술절을 안은 문장"],a:1,why:"앞 문장이 뒤 문장의 조건을 나타내므로 종속적으로 이어진 문장이야."},
+{topic:"이어진 문장",q:"'날씨는 춥지만 하늘은 맑다.'에서 연결 어미는?",target:"연결 어미",opts:["날씨는","춥지만","하늘은","맑다"],a:1,why:"'-지만'은 앞뒤 내용을 대조하며 이어 주는 연결 어미야."},
+{topic:"이어진 문장",q:"'밥을 먹어서 배가 부르다.'에서 '-어서'가 나타내는 관계는?",target:"연결 관계",opts:["대조","선택","원인·이유","나열"],a:2,why:"밥을 먹은 것이 배가 부른 원인이므로 원인·이유 관계야."},
+{topic:"안은문장",q:"'나는 네가 오기를 바란다.'에서 안긴문장의 종류는?",target:"네가 오기",opts:["관형절","명사절","부사절","인용절"],a:1,why:"'네가 오기'가 문장에서 목적어 역할을 하는 명사절이야."},
+{topic:"안은문장",q:"'내가 어제 읽은 책은 재미있다.'에서 '내가 어제 읽은'은?",target:"내가 어제 읽은",opts:["명사절","부사절","관형절","인용절"],a:2,why:"'내가 어제 읽은'이 '책'을 꾸며 주는 관형절이야."},
+{topic:"안은문장",q:"'그는 발이 크다.'에서 '발이 크다'의 종류는?",target:"발이 크다",opts:["명사절","서술절","인용절","관형절"],a:1,why:"'발이 크다'가 전체 주어 '그는'의 서술어 역할을 하는 서술절이야."},
+{topic:"안은문장",q:"'민수는 내일 오겠다고 말했다.'에서 안긴문장은?",target:"내일 오겠다고",opts:["인용절","관형절","명사절","부사절"],a:0,why:"'내일 오겠다'라는 말을 인용하므로 인용절이야."},
+{topic:"어미",q:"'먹었다'에서 문장을 끝맺는 종결 어미는?",target:"종결 어미",opts:["먹-","-었-","-다","먹었다 전체"],a:2,why:"'-다'는 문장을 끝맺는 종결 어미야. '-었-'은 과거 시제를 나타내는 선어말 어미야."},
+{topic:"어미",q:"'친구와 밥을 먹고 학교에 갔다.'에서 연결 어미는?",target:"연결 어미",opts:["친구와","먹고","학교에","갔다"],a:1,why:"'-고'는 앞뒤 동작을 이어 주는 연결 어미야."},
+{topic:"어미",q:"'책을 읽기 시작했다.'에서 '-기'는?",target:"-기",opts:["종결 어미","연결 어미","명사형 전성 어미","관형사형 전성 어미"],a:2,why:"'-기'는 용언을 명사처럼 쓰이게 하는 명사형 전성 어미야."},
+{topic:"어미",q:"'내가 읽은 책'에서 '-은'의 종류는?",target:"-은",opts:["종결 어미","관형사형 전성 어미","연결 어미","명사형 전성 어미"],a:1,why:"'읽은'이 '책'을 꾸미도록 용언을 관형사형으로 쓰이게 해."},
+{topic:"어미",q:"'비가 오고 눈이 온다.'에서 '-고'는?",target:"-고",opts:["종결 어미","관형사형 전성 어미","연결 어미","명사형 전성 어미"],a:2,why:"'-고'는 두 절을 이어 주는 연결 어미야."},
+{topic:"종합",q:"다음 중 홑문장은?",target:"문장 전체",opts:["나는 밥을 먹었다.","비가 오고 바람이 분다.","네가 오기를 기다린다.","내가 만든 인형은 예쁘다."],a:0,why:"'나는 밥을 먹었다'는 주어-서술어 관계가 한 번인 홑문장이야."},
+{topic:"종합",q:"'동생이 웃으며 달려왔다.'에서 '웃으며'가 하는 역할은?",target:"웃으며",opts:["동작을 꾸며 주는 부사어","목적어","보어","종결 어미"],a:0,why:"'웃으며'는 달려온 동작의 모습을 설명해."},
+{topic:"안은문장",q:"'동생이 잠을 자는 모습이 귀엽다.'에서 '동생이 잠을 자는'은?",target:"동생이 잠을 자는",opts:["명사절","관형절","서술절","인용절"],a:1,why:"뒤의 명사 '모습'을 꾸며 주는 관형절이야."},
+{topic:"안은문장",q:"'그는 마치 아무 일도 없었던 듯 행동했다.'에서 '아무 일도 없었던 듯'은 어떤 기능을 할까?",target:"안긴 부분",opts:["명사절","관형절","부사절","인용절"],a:2,why:"행동한 방식을 설명하는 부사절로 분석할 수 있어."},
+{topic:"어미",q:"'친구가 오면 같이 놀자.'에서 '-면'은?",target:"-면",opts:["종결 어미","연결 어미","명사형 전성 어미","관형사형 전성 어미"],a:1,why:"조건의 의미로 앞뒤 절을 이어 주는 연결 어미야."},
+{topic:"문장 성분",q:"'아주 큰 나무가 쓰러졌다.'에서 '아주'는?",target:"아주",opts:["목적어","관형어","부사어","보어"],a:2,why:"'큰'을 꾸며 주는 부사어야."},
+{topic:"이어진 문장",q:"'열심히 공부했으므로 좋은 결과가 나왔다.'에서 두 절의 관계는?",target:"두 절의 관계",opts:["대등한 나열","원인과 결과","선택","대조"],a:1,why:"앞 절이 뒤 절의 원인을 나타내는 종속 관계야."},
+{topic:"어미",q:"'예쁜 꽃'의 '예쁜'에서 '-은'과 같은 관형사형 전성 어미가 하는 일은?",target:"전성 어미의 기능",opts:["문장을 끝맺는다","절을 연결한다","용언을 관형어로 쓰이게 한다","용언을 명사로 쓰이게 한다"],a:2,why:"관형사형 전성 어미는 용언이 뒤의 체언을 꾸미게 해."}
+];
+const topicList=[["전체","모든 문법 유형을 골고루 연습"],["문장 성분","주어·서술어·목적어·보어·관형어·부사어"],["홑문장·겹문장","홑문장과 겹문장 구별"],["이어진 문장","대등·종속 관계와 연결 어미"],["안은문장","명사절·관형절·부사절·서술절·인용절"],["어미","종결·연결·전성 어미"],["종합","여러 개념을 섞은 응용 문제"]];
+let selectedTopic="전체", run=[], index=0, chosen=null, locked=false, answers=[];
+const $=id=>document.getElementById(id);
+function show(id){$(id).classList.remove("hidden")} function hide(id){$(id).classList.add("hidden")}
+function setupTopics(){ $("topics").innerHTML=""; topicList.forEach(([name,desc])=>{const b=document.createElement("button");b.className="topic"+(name===selectedTopic?" active":"");b.innerHTML=`<strong>${name}</strong><small>${desc}</small>`;b.onclick=()=>{selectedTopic=name;setupTopics()};$("topics").appendChild(b)})}
+function start(list=null){run=list||questions.map((q,i)=>({q,i})).filter(x=>selectedTopic==="전체"||x.q.topic===selectedTopic).map(x=>x.i);index=0;chosen=null;locked=false;answers=[];hide("setup");hide("result");show("quiz");render()}
+function render(){const q=questions[run[index]];chosen=null;locked=false;$("category").textContent=q.topic;$("counter").textContent=`문제 ${index+1} / ${run.length}`;$("bar").style.width=((index+1)/run.length*100)+"%";$("question").textContent=q.q;$("target").textContent="확인할 부분: "+q.target;$("options").innerHTML="";q.opts.forEach((opt,i)=>{const label=document.createElement("label");label.className="option";label.innerHTML=`<input type="radio" name="answer" value="${i}"><span>${String.fromCharCode(9312+i)} ${opt}</span>`;label.querySelector("input").onchange=()=>{chosen=i;document.querySelectorAll(".option").forEach(x=>x.classList.remove("chosen"));label.classList.add("chosen")};$("options").appendChild(label)});hide("feedback");hide("next");show("check");$("check").disabled=false}
+function check(){if(chosen===null)return;locked=true;const q=questions[run[index]],ok=chosen===q.a;answers[index]={i:run[index],chosen,ok};document.querySelectorAll(".option").forEach((el,i)=>{el.querySelector("input").disabled=true;if(i===q.a)el.classList.add("correct");if(i===chosen&&!ok)el.classList.add("wrong")});const f=$("feedback");f.className="feedback "+(ok?"good":"bad");f.textContent=(ok?"정답이야! ":"아쉬워! 정답은 "+q.opts[q.a]+". ")+q.why;show("feedback");hide("check");show("next");$("next").textContent=index===run.length-1?"결과 보기":"다음 문제 →"}
+function next(){if(index<run.length-1){index++;render()}else result()}
+function result(){hide("quiz");show("result");const score=answers.filter(a=>a.ok).length;$("score").textContent=`${score} / ${run.length}점`;$("summary").textContent=`정답률 ${Math.round(score/run.length*100)}%. 아래에서 틀린 문제의 정답과 해설을 복습할 수 있어.`;$("review").innerHTML="";answers.forEach((a,i)=>{const q=questions[a.i],div=document.createElement("div");div.className="resultrow";const title=document.createElement("strong");title.textContent=`${i+1}. ${a.ok?"✓":"✗"} ${q.topic}`;const p=document.createElement("p");p.textContent=q.q;div.append(title,p);if(!a.ok){const d=document.createElement("div");d.className="muted";d.textContent=`정답: ${q.opts[q.a]} — ${q.why}`;div.appendChild(d)}$("review").appendChild(div)});$("retry").disabled=!answers.some(a=>!a.ok);$("retry").onclick=()=>start(answers.filter(a=>!a.ok).map(a=>a.i))}
+$("start").onclick=()=>start();$("check").onclick=check;$("next").onclick=next;$("back").onclick=()=>{hide("quiz");show("setup")};$("home").onclick=()=>{hide("result");show("setup")};setupTopics();
+</script>
+</body></html>
